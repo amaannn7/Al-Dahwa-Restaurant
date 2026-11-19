@@ -1,0 +1,14 @@
+export const locales = ["ar", "en"] as const;
+export type Locale = (typeof locales)[number];
+
+/** Arabic is the primary language of the site. */
+export const defaultLocale: Locale = "ar";
+
+export const isLocale = (value: string): value is Locale =>
+  (locales as readonly string[]).includes(value);
+
+export const dirOf = (locale: Locale) => (locale === "ar" ? "rtl" : "ltr");
+
+export const otherLocale = (locale: Locale): Locale => (locale === "ar" ? "en" : "ar");
+
+export const LOCALE_COOKIE = "aldafwa-lang";

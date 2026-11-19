@@ -1,26 +1,390 @@
 @import "tailwindcss";
 
+/*
+ * Al-Dafwa design system
+ * Palette sampled from the client's design reference: deep teal-black ink,
+ * slate surfaces and a gold accent. Copper is used for text on dark (6.3:1)
+ * and as a button fill with dark ink text (white on gold fails AA).
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #0b161a;
+  --ink-2: #0f1b1f;
+  --surface: #141e20;
+  --surface-2: #1a2629;
+  --surface-3: #22302f;
+  --line: rgb(255 255 255 / 0.1);
+  --line-strong: rgb(255 255 255 / 0.18);
+  --gold: #d5ad72;
+  --gold-hover: #e4c391;
+  --gold-deep: #a27746;
+  --gold-line: rgb(213 173 114 / 0.5);
+  --leaf: #4fae74;
+  --leaf-deep: #1f6e3f;
+  --bone: #f4eee6;
+  --muted: #a7b1b3;
+  --danger: #f08a7a;
+  --success: #8fd3a8;
+
+  /* Motion identity (premium): one signature curve, three durations. */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-in: cubic-bezier(0.3, 0, 1, 1);
+  --dur-quick: 180ms;
+  --dur: 400ms;
+  --dur-slow: 700ms;
+
+  --header-h: 72px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-gold: var(--gold);
+  --color-gold-hover: var(--gold-hover);
+  --color-gold-deep: var(--gold-deep);
+  --color-leaf: var(--leaf);
+  --color-leaf-deep: var(--leaf-deep);
+  --color-bone: var(--bone);
+  --color-muted: var(--muted);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display-stack);
+  --font-script: var(--font-script-stack);
+
+  --ease-brand: var(--ease);
+  --ease-brand-out: var(--ease-out);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Font stacks per language. Latin: Josefin Sans + Allura (as in the reference).
+   Arabic: Tajawal + Aref Ruqaa, with Josefin kept for Latin digits/words. */
+html[lang="en"] {
+  --font-body: var(--font-josefin), ui-sans-serif, system-ui, sans-serif;
+  --font-display-stack: var(--font-josefin), ui-sans-serif, system-ui, sans-serif;
+  --font-script-stack: var(--font-allura), cursive;
+}
+html[lang="ar"] {
+  --font-body: var(--font-tajawal), var(--font-josefin), ui-sans-serif, system-ui, sans-serif;
+  --font-display-stack: var(--font-tajawal), var(--font-josefin), ui-sans-serif, sans-serif;
+  --font-script-stack: var(--font-ruqaa), var(--font-tajawal), serif;
+}
+
+html {
+  background: var(--ink);
+  color-scheme: dark;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+html[lang="ar"] body {
+  font-weight: 400;
+  line-height: 1.85;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* ---------- Type scale ---------- */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+
+@layer components {
+  .t-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--bone);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.02;
+  }
+  /* Wide-tracked section title, as "ABOUT US" in the reference */
+  .t-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    color: var(--bone);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    line-height: 1.15;
+  }
+  .t-heading {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--bone);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+  }
+  .t-script {
+    font-family: var(--font-script);
+    color: var(--leaf);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .t-label {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+  .t-action {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .t-meta {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  /* Arabic must never be letter-spaced: it breaks the joining of letters. */
+  html[lang="ar"] .t-display,
+  html[lang="ar"] .t-title,
+  html[lang="ar"] .t-heading,
+  html[lang="ar"] .t-label,
+  html[lang="ar"] .t-action {
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  html[lang="ar"] .t-display {
+    line-height: 1.25;
+  }
+  html[lang="ar"] .t-title {
+    font-weight: 700;
+  }
+  html[lang="ar"] .t-label {
+    font-size: 13px;
+  }
+  html[lang="ar"] .t-action {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 48px;
+    padding: 0 1.6rem;
+    border: 1px solid transparent;
+    transition:
+      background-color var(--dur-quick) var(--ease),
+      color var(--dur-quick) var(--ease),
+      border-color var(--dur-quick) var(--ease),
+      transform var(--dur-quick) var(--ease);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .btn svg {
+    flex-shrink: 0;
+  }
+  .btn:active {
+    transform: scale(0.98);
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--ink);
+  }
+  .btn-primary:hover {
+    background: var(--gold-hover);
+  }
+  .btn-outline {
+    border-color: var(--line-strong);
+    color: var(--bone);
+  }
+  .btn-outline:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .btn-ghost {
+    color: var(--bone);
+    padding: 0 0.25rem;
+    min-height: 44px;
+  }
+  .btn-ghost:hover {
+    color: var(--gold);
+  }
+  .btn[disabled],
+  .btn[aria-disabled="true"] {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  /* Text link with gold underline that draws in on hover */
+  .link-line {
+    background-image: linear-gradient(var(--gold), var(--gold));
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size var(--dur) var(--ease), color var(--dur-quick) var(--ease);
+  }
+  html[dir="rtl"] .link-line {
+    background-position: 100% 100%;
+  }
+  .link-line:hover {
+    background-size: 100% 1px;
+    color: var(--bone);
+  }
+
+  .container-x {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+  @media (min-width: 640px) {
+    .container-x {
+      padding-inline: 32px;
+    }
+  }
+  @media (min-width: 1280px) {
+    .container-x {
+      padding-inline: 40px;
+    }
+  }
+
+  /* Soft halo so text stays readable over photography */
+  .on-photo.t-script {
+    color: var(--bone);
+  }
+  .on-photo {
+    text-shadow: 0 1px 18px rgb(0 0 0 / 0.55), 0 1px 3px rgb(0 0 0 / 0.5);
+  }
+
+  /* Hairline with gold dot, used between menu name and price */
+  .leader {
+    flex: 1;
+    height: 1px;
+    min-width: 24px;
+    background: var(--gold-line);
+    transform: translateY(-0.3em);
+  }
+}
+
+/* ---------- Motion ---------- */
+/* Reveal targets are hidden only when JS runs and motion is welcome.
+   If GSAP never initialises, a CSS fallback reveals them after 2.5s. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal] {
+    opacity: 0;
+  }
+  html.js:not(.motion-ready) [data-reveal] {
+    animation: reveal-fallback 0.6s var(--ease) 2.5s forwards;
+  }
+}
+@keyframes reveal-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Image zoom on hover for cards */
+.zoom-img img {
+  transition: transform var(--dur-slow) var(--ease);
+}
+@media (hover: hover) {
+  .zoom-host:hover .zoom-img img {
+    transform: scale(1.05);
+  }
+}
+
+/* Hide scrollbar on horizontal category rail while keeping it scrollable */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Lock page scroll while a drawer or menu is open */
+html.scroll-locked,
+html.scroll-locked body {
+  overflow: hidden;
+}
+
+/* Cart badge pulse when an item is added */
+@keyframes badge-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+.badge-pop {
+  animation: badge-pop 420ms var(--ease-out);
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Fade the trailing edge of a horizontal rail to signal it scrolls */
+.rail-fade {
+  mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
+}
+html[dir="rtl"] .rail-fade {
+  mask-image: linear-gradient(to left, #000 calc(100% - 56px), transparent);
+}
+@media (min-width: 1440px) {
+  .rail-fade {
+    mask-image: none !important;
+  }
 }

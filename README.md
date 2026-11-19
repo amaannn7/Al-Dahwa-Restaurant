@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Al-Dafwa Restaurant website
 
-## Getting Started
+Bilingual (Arabic / English) restaurant website for Al-Dafwa Restaurant, Omar Bin Abdulaziz Road, Al Malaz, Riyadh. It includes a digital menu, a persistent cart and ordering through WhatsApp. There is no backend, database or payment: orders are sent as a pre-filled WhatsApp message that the customer sends themselves.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # http://localhost:3000
+npm run test         # unit tests: prices, cart, WhatsApp message
+npm run lint
+npm run build && npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Environment variables (see `.env.example`):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` | Restaurant WhatsApp, digits only (e.g. `9665XXXXXXXX`). Without it, ordering is disabled and the site asks customers to call. |
+| `NEXT_PUBLIC_SITE_URL` | Production URL for canonical links, sitemap and Open Graph. |
+| `NEXT_PUBLIC_ALLOW_INDEXING` | `true` only in production. Otherwise the site is `noindex`. |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Where things live
 
-## Learn More
+| Path | What |
+|---|---|
+| `src/config/restaurant.ts` | Name, address, coordinates, phone, WhatsApp, hours, social links, order types, charges |
+| `src/data/menu.ts` | The full menu: 12 sections, 95 dishes, from the Google Maps menu |
+| `src/i18n/dictionaries.ts` | All interface text in Arabic and English |
+| `src/lib/cart.ts` | Pure cart and price logic (integer halalas) |
+| `src/lib/whatsapp.ts` | WhatsApp message builder, URL encoding, phone validation |
+| `src/components/cart/` | Cart provider (React state + localStorage), drawer, checkout |
+| `src/app/[lang]/` | Pages: home, menu, about, contact |
+| `src/proxy.ts` | Sends `/` to `/ar` or `/en` (saved choice, browser language, Arabic default) |
 
-To learn more about Next.js, take a look at the following resources:
+Stack: Next.js 16 (App Router, Cache Components), React 19, TypeScript, Tailwind CSS 4, Lucide icons, GSAP (scroll reveals), Three.js (hero embers, tablets and desktops only), Vitest.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Docs
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `docs/01-research-and-plan.md`: verified facts and their sources, conflicts, design direction, ordering flow
+- `docs/02-content-editing-guide.md`: how to change the menu, prices, photos, hours, logo and WhatsApp number
+- `docs/03-launch-checklist.md`: what the restaurant must confirm, and go-live steps
+- `docs/04-menu-source.md`: where every menu price came from, corrections, Arabic names to check
+- `docs/photo-credits.md`: Unsplash photo credits (all photos are illustrative)
