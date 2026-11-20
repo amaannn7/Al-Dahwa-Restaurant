@@ -8,6 +8,7 @@ export function CartSummary() {
   const { locale, t } = useI18n();
   const { totals } = useCart();
   return (
+    <>
     <dl className="space-y-2 text-[15px]">
       <div className="flex justify-between">
         <dt>{t.cart.subtotal}</dt>
@@ -26,5 +27,7 @@ export function CartSummary() {
         </dd>
       </div>
     </dl>
+    <p className="t-meta mt-2 text-end text-muted">{t.menu.vat}</p>
+    </>
   );
 }

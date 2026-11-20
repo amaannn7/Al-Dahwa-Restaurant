@@ -3,7 +3,7 @@
 import { Search, X } from "lucide-react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/components/providers/I18nProvider";
-import { itemsInCategory, visibleCategories, type MenuItem } from "@/data/menu";
+import { getCategory, itemsInCategory, visibleCategories, type MenuItem } from "@/data/menu";
 import { MenuItemCard } from "./MenuItemCard";
 
 /** Lower-case, strip Arabic diacritics/tatweel and unify common letter forms. */
@@ -19,7 +19,7 @@ export function normalize(text: string): string {
 }
 
 const haystack = (i: MenuItem) =>
-  normalize([i.name.en, i.name.ar, i.description.en, i.description.ar, ...(i.variations?.options.flatMap((o) => [o.name.en, o.name.ar]) ?? [])].join(" "));
+  normalize([i.name.en, i.name.ar, i.description.en, i.description.ar, getCategory(i.category)?.name.en ?? "", getCategory(i.category)?.name.ar ?? "", ...(i.variations?.options.flatMap((o) => [o.name.en, o.name.ar]) ?? [])].join(" "));
 
 /** Full digital menu: sticky category rail with scroll-spy, sections below. */
 export function MenuBrowser() {
@@ -174,6 +174,7 @@ export function MenuBrowser() {
                 <span className="mb-2 h-px flex-1 bg-line" aria-hidden />
                 <span className="t-meta mb-1 whitespace-nowrap">{t.categories.dishes(items.length)}</span>
               </div>
+              {c.note ? <p className="mt-3 text-[14px] text-muted" data-reveal>{c.note[locale]}</p> : null}
               <div className="mt-7 grid gap-4 lg:grid-cols-2">
                 {items.map((item) => (
                   <MenuItemCard key={item.id} item={item} />

@@ -2,7 +2,7 @@ import { getWhatsAppNumber, restaurant } from "@/config/restaurant";
 import type { Locale } from "@/i18n/config";
 import { enquiryMessage, waLink } from "@/lib/whatsapp";
 
-export type RoutePath = "" | "/menu" | "/about" | "/contact";
+export type RoutePath = "" | "/menu" | "/catering" | "/about" | "/contact";
 
 export const localePath = (locale: Locale, path: RoutePath | string = "") => `/${locale}${path}`;
 

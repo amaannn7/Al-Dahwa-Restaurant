@@ -3,7 +3,8 @@ import { cacheLife } from "next/cache";
 import { restaurant } from "@/config/restaurant";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { InstagramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { SocialLinks } from "@/components/ui/SocialLinks";
 import { Logo, TAGLINE } from "@/components/ui/Logo";
 import { displayPhone, formatHoursRange, fullAddress, localePath, telHref, whatsappEnquiryHref } from "@/lib/links";
 
@@ -20,6 +21,7 @@ export async function Footer({ locale }: { locale: Locale }) {
   const links = [
     { href: localePath(locale), label: t.nav.home },
     { href: localePath(locale, "/menu"), label: t.nav.menu },
+    { href: localePath(locale, "/catering"), label: t.nav.catering },
     { href: localePath(locale, "/about"), label: t.nav.about },
     { href: localePath(locale, "/contact"), label: t.nav.contact },
   ];
@@ -72,11 +74,13 @@ export async function Footer({ locale }: { locale: Locale }) {
         <div>
           <h2 className="t-label text-bone">{t.footer.contact}</h2>
           <ul className="mt-5 space-y-1 text-[15px]">
-            <li>
-              <a href={telHref} className="link-line inline-flex min-h-10 items-center">
-                <span dir="ltr">{displayPhone(restaurant.phone)}</span>
-              </a>
-            </li>
+            {[restaurant.phone, ...restaurant.altPhones].map((p) => (
+              <li key={p}>
+                <a href={p === restaurant.phone ? telHref : `tel:${p}`} className="link-line inline-flex min-h-10 items-center">
+                  <span dir="ltr">{displayPhone(p)}</span>
+                </a>
+              </li>
+            ))}
             {wa ? (
               <li>
                 <a href={wa} target="_blank" rel="noopener noreferrer" className="link-line inline-flex min-h-10 items-center gap-2">
@@ -85,20 +89,8 @@ export async function Footer({ locale }: { locale: Locale }) {
               </li>
             ) : null}
           </ul>
-          {restaurant.social.instagram ? (
-            <>
-              <h3 className="t-label mt-6 text-bone">{t.footer.follow}</h3>
-              <a
-                href={restaurant.social.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram @aldafwa"
-                className="mt-3 inline-grid size-11 place-items-center border border-line-strong text-bone transition-colors hover:border-gold hover:text-gold"
-              >
-                <InstagramIcon />
-              </a>
-            </>
-          ) : null}
+          <h3 className="t-label mt-6 text-bone">{t.footer.follow}</h3>
+          <SocialLinks locale={locale} className="mt-3" />
         </div>
       </div>
 

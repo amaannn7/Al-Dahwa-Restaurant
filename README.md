@@ -1,13 +1,13 @@
 # Al-Dafwa Restaurant website
 
-Bilingual (Arabic / English) restaurant website for Al-Dafwa Restaurant, Omar Bin Abdulaziz Road, Al Malaz, Riyadh. It includes a digital menu, a persistent cart and ordering through WhatsApp. There is no backend, database or payment: orders are sent as a pre-filled WhatsApp message that the customer sends themselves.
+Bilingual (Arabic / English) restaurant website for Al-Dafwa Restaurant, Omar Bin Abdulaziz Road, Al Malaz, Riyadh. It includes a digital menu, a persistent cart, ordering through WhatsApp, a Catering & Bulk Orders page (catering inquiry and meeting request forms) and the restaurant's social links. There is no backend, database or payment: orders and requests are sent as a pre-filled WhatsApp message that the customer sends themselves.
 
 ## Run it
 
 ```bash
 npm install
 npm run dev          # http://localhost:3000
-npm run test         # unit tests: prices, cart, WhatsApp message
+npm run test         # unit tests: prices, cart, WhatsApp order and catering messages
 npm run lint
 npm run build && npm run start
 ```
@@ -16,7 +16,7 @@ Environment variables (see `.env.example`):
 
 | Variable | Purpose |
 |---|---|
-| `NEXT_PUBLIC_WHATSAPP_NUMBER` | Restaurant WhatsApp, digits only (e.g. `9665XXXXXXXX`). Without it, ordering is disabled and the site asks customers to call. |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` | Optional override of the restaurant WhatsApp (digits only). The default, 966504224206, comes from the official Linktree and is set in `src/config/restaurant.ts`. With no number at all, ordering and requests are disabled and the site asks customers to call. |
 | `NEXT_PUBLIC_SITE_URL` | Production URL for canonical links, sitemap and Open Graph. |
 | `NEXT_PUBLIC_ALLOW_INDEXING` | `true` only in production. Otherwise the site is `noindex`. |
 
@@ -25,10 +25,12 @@ Environment variables (see `.env.example`):
 | Path | What |
 |---|---|
 | `src/config/restaurant.ts` | Name, address, coordinates, phone, WhatsApp, hours, social links, order types, charges |
-| `src/data/menu.ts` | The full menu: 12 sections, 95 dishes, from the Google Maps menu |
+| `src/data/menu.ts` | The full menu: 11 sections, 105 dishes, from the restaurant's own QR menu (prices include VAT) |
 | `src/i18n/dictionaries.ts` | All interface text in Arabic and English |
 | `src/lib/cart.ts` | Pure cart and price logic (integer halalas) |
 | `src/lib/whatsapp.ts` | WhatsApp message builder, URL encoding, phone validation |
+| `src/lib/catering.ts` | Catering inquiry and meeting request options, validation and messages |
+| `src/lib/social.ts` | Social links list (WhatsApp plus the accounts in the config) |
 | `src/components/cart/` | Cart provider (React state + localStorage), drawer, checkout |
 | `src/app/[lang]/` | Pages: home, menu, about, contact |
 | `src/proxy.ts` | Sends `/` to `/ar` or `/en` (saved choice, browser language, Arabic default) |

@@ -4,8 +4,10 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 /**
- * Scroll reveals with GSAP ScrollTrigger.batch (gsap-skills: transforms +
- * opacity only, batched, cleaned up via context revert). Motion identity
+ * Scroll reveals: an IntersectionObserver decides when, GSAP animates
+ * (transforms + opacity only, staggered per batch, cleaned up via matchMedia
+ * revert). IntersectionObserver also catches jumps (anchor links, restored
+ * scroll position), where scroll-event triggers can miss elements. Motion identity
  * follows the motion-design skill's "premium" archetype: one decelerating
  * curve, 0.8s entrances, 80ms stagger, short travel (24px).
  * Elements marked [data-reveal] stay visible with JS off or reduced motion.
@@ -19,9 +21,8 @@ export function MotionProvider() {
     const html = document.documentElement;
 
     (async () => {
-      const [{ gsap }, { ScrollTrigger }] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger")]);
+      const { gsap } = await import("gsap");
       if (cancelled) return;
-      gsap.registerPlugin(ScrollTrigger);
       const mm = gsap.matchMedia();
       mm.add(
         { motion: "(prefers-reduced-motion: no-preference)", reduce: "(prefers-reduced-motion: reduce)" },
@@ -32,14 +33,25 @@ export function MotionProvider() {
             return;
           }
           gsap.set(targets, { opacity: 0, y: 24 });
-          ScrollTrigger.batch(targets, {
-            start: "top 90%",
-            once: true,
-            onEnter: (batch) =>
-              gsap.to(batch, { opacity: 1, y: 0, duration: 0.8, ease: "expo.out", stagger: 0.08, overwrite: true }),
-          });
-          // Anything already above the fold on load reveals immediately.
-          ScrollTrigger.refresh();
+          const io = new IntersectionObserver(
+            (entries) => {
+              const entering: Element[] = [];
+              const passed: Element[] = [];
+              for (const e of entries) {
+                if (e.isIntersecting) entering.push(e.target);
+                else if (e.boundingClientRect.bottom <= 0) passed.push(e.target);
+                else continue;
+                io.unobserve(e.target);
+              }
+              // Already scrolled past (e.g. after a jump): show without animating.
+              if (passed.length) gsap.set(passed, { opacity: 1, y: 0 });
+              if (entering.length)
+                gsap.to(entering, { opacity: 1, y: 0, duration: 0.8, ease: "expo.out", stagger: 0.08, overwrite: true });
+            },
+            { rootMargin: "0px 0px -8% 0px" },
+          );
+          targets.forEach((el) => io.observe(el));
+          return () => io.disconnect();
         },
       );
       html.classList.add("motion-ready");

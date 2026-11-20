@@ -3,10 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import heroImg from "@/assets/photos/grill-flames.jpg";
-import grill from "@/assets/photos/mixed-grill.jpg";
-import mahashi from "@/assets/photos/mahashi-pot.jpg";
+import grill from "@/assets/menu/mixed-grill.webp";
+import mahashi from "@/assets/menu/grape-leaves-spicy.webp";
 import juice from "@/assets/photos/juice-dark.jpg";
-import tableSpread from "@/assets/photos/table-spread.jpg";
+import tableSpread from "@/assets/photos/grill-tray-tea.jpg";
 import logoFull from "@/assets/brand/logo-full.png";
 import { TAGLINE } from "@/components/ui/Logo";
 import { isLocale } from "@/i18n/config";
@@ -88,7 +88,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/about">) 
         <div className="container-x grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div className="lg:order-2">
             <figure className="relative aspect-[4/3] overflow-hidden" data-reveal>
-              <Image src={tableSpread} alt={ar ? "أطباق متنوعة على المائدة" : "Dishes shared at the table"} fill sizes="(min-width: 1024px) 45vw, 100vw" quality={85} className="object-cover" />
+              <Image src={tableSpread} alt={ar ? "مشاوي مشكلة مع الشاي" : "Mixed grill served with tea"} fill sizes="(min-width: 1024px) 45vw, 100vw" quality={85} className="object-cover" />
             </figure>
           </div>
           <div data-reveal>

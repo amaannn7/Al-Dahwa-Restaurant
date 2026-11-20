@@ -6,9 +6,18 @@ import {
 import { getMenuItem, menuItems, type MenuItem } from "@/data/menu";
 import { formatSAR } from "@/lib/money";
 
-const tawouk = getMenuItem("shish-tawouk")!; // Sandwich 18 / Plate 42
-const shawarma = getMenuItem("chicken-shawarma")!; // Sandwich 9 / Jumbo 19 / Plate 30
-const broasted = getMenuItem("broasted")!; // 27
+const tawouk = getMenuItem("shish-tawouk")!; // 35
+const broasted = getMenuItem("broasted")!; // 22
+
+// The live menu has no sizes; test that logic with a synthetic dish.
+const sized: MenuItem = {
+  id: "test-sized", category: "grills", name: { en: "Sized", ar: "بأحجام" }, description: { en: "", ar: "" },
+  price: 0, image: null, available: true,
+  variations: { label: { en: "Serving", ar: "التقديم" }, options: [
+    { id: "sandwich", name: { en: "Sandwich", ar: "ساندويتش" }, price: 18 },
+    { id: "plate", name: { en: "Plate", ar: "صحن" }, price: 42 },
+  ] },
+};
 
 // The live menu has no extras or unavailable dishes; test that logic with a synthetic dish.
 const synthetic: MenuItem = {
@@ -33,16 +42,16 @@ describe("menu data", () => {
 
 describe("unit prices", () => {
   it("uses the variation price when variations exist", () => {
-    expect(unitPriceHalalas(tawouk, "sandwich", [])).toBe(1800);
-    expect(unitPriceHalalas(tawouk, "plate", [])).toBe(4200);
-    expect(unitPriceHalalas(shawarma, "jumbo", [])).toBe(1900);
+    expect(unitPriceHalalas(sized, "sandwich", [])).toBe(1800);
+    expect(unitPriceHalalas(sized, "plate", [])).toBe(4200);
+    expect(unitPriceHalalas(tawouk, null, [])).toBe(3500);
   });
   it("adds paid extras and ignores free ones", () => {
     expect(unitPriceHalalas(synthetic, null, ["cheese", "no-onion"])).toBe(1200);
   });
   it("rejects unknown variations and extras", () => {
-    expect(unitPriceHalalas(tawouk, "huge", [])).toBeNull();
-    expect(unitPriceHalalas(tawouk, null, [])).toBeNull();
+    expect(unitPriceHalalas(sized, "huge", [])).toBeNull();
+    expect(unitPriceHalalas(sized, null, [])).toBeNull();
     expect(unitPriceHalalas(synthetic, null, ["gold"])).toBeNull();
     expect(unitPriceHalalas(broasted, "plate", [])).toBeNull();
   });
@@ -51,11 +60,16 @@ describe("unit prices", () => {
     expect(isOrderable({ ...synthetic, price: Number.NaN })).toBe(false);
     expect(isOrderable(synthetic)).toBe(true);
   });
+  it("lists the open buffet but never orders it (dine-in only)", () => {
+    const buffet = getMenuItem("open-buffet")!;
+    expect(isOrderable(buffet)).toBe(false);
+    expect(priceLines([{ itemId: "open-buffet", variationId: null, extraIds: [], qty: 1 }])[0].orderable).toBe(false);
+  });
 });
 
 describe("cart operations", () => {
-  const a: CartLine = { itemId: "shish-tawouk", variationId: "plate", extraIds: [], qty: 1 };
-  const b: CartLine = { itemId: "chicken-shawarma", variationId: "sandwich", extraIds: [], qty: 3 };
+  const a: CartLine = { itemId: "shish-tawouk", variationId: null, extraIds: [], qty: 1 };
+  const b: CartLine = { itemId: "rocket-shawarma", variationId: null, extraIds: [], qty: 3 };
 
   it("merges the same dish and option into one line", () => {
     const lines = addLine(addLine([], a), a);
@@ -67,8 +81,9 @@ describe("cart operations", () => {
     const k2 = lineKey({ itemId: "x", variationId: null, extraIds: ["b", "a"] });
     expect(k1).toBe(k2);
   });
-  it("keeps different variations as separate lines", () => {
-    expect(addLine(addLine([], a), { ...a, variationId: "sandwich" })).toHaveLength(2);
+  it("keeps different dishes and variations as separate lines", () => {
+    expect(addLine(addLine([], a), b)).toHaveLength(2);
+    expect(lineKey({ itemId: "x", variationId: "plate", extraIds: [] })).not.toBe(lineKey({ itemId: "x", variationId: "sandwich", extraIds: [] }));
   });
   it("updates, clamps and removes quantities", () => {
     let lines = addLine([], a);
@@ -88,26 +103,26 @@ describe("cart operations", () => {
   });
   it("computes subtotals and totals in halalas", () => {
     const priced = priceLines(addLine(addLine([], { ...a, qty: 2 }), b));
-    expect(priced.map((l) => l.subtotalHalalas)).toEqual([8400, 2700]);
+    expect(priced.map((l) => l.subtotalHalalas)).toEqual([7000, 4500]);
     const totals = computeTotals(priced);
-    expect(totals.subtotalHalalas).toBe(11100);
-    expect(totals.totalHalalas).toBe(11100);
+    expect(totals.subtotalHalalas).toBe(11500);
+    expect(totals.totalHalalas).toBe(11500);
     expect(totals.itemCount).toBe(5);
-    expect(formatSAR(totals.totalHalalas, "en")).toBe("SAR 111");
+    expect(formatSAR(totals.totalHalalas, "en")).toBe("SAR 115");
     expect(formatSAR(1250, "ar")).toBe("12.50 ر.س");
   });
   it("applies only confirmed charges for the matching order type", () => {
     const priced = priceLines([a]);
     const charges = [{ id: "d", label: { en: "Delivery", ar: "توصيل" }, amount: 10, appliesTo: ["delivery" as const] }];
-    expect(computeTotals(priced, charges, "pickup").totalHalalas).toBe(4200);
-    expect(computeTotals(priced, charges, "delivery").totalHalalas).toBe(5200);
+    expect(computeTotals(priced, charges, "pickup").totalHalalas).toBe(3500);
+    expect(computeTotals(priced, charges, "delivery").totalHalalas).toBe(4500);
   });
   it("excludes unorderable lines from totals and flags them", () => {
     const good = priceLines([a])[0];
     const bad: PricedLine = { ...good, key: "bad", orderable: false, subtotalHalalas: 0 };
     const totals = computeTotals([bad, good]);
     expect(totals.hasUnorderable).toBe(true);
-    expect(totals.totalHalalas).toBe(4200);
+    expect(totals.totalHalalas).toBe(3500);
   });
 });
 
@@ -121,14 +136,14 @@ describe("sanitizeLines (stored data)", () => {
     const clean = sanitizeLines([
       { itemId: "deleted-dish", qty: 1 },
       { itemId: "shish-tawouk", variationId: "huge", qty: 1 },
-      { itemId: "shish-tawouk", variationId: "plate", qty: "3" },
+      { itemId: "shish-tawouk", variationId: null, qty: "3" },
       { itemId: "broasted", variationId: null, extraIds: [], qty: 1e9, price: 0.01 },
       42,
     ]);
     expect(clean).toEqual([
-      { itemId: "shish-tawouk", variationId: "plate", extraIds: [], qty: 1 },
+      { itemId: "shish-tawouk", variationId: null, extraIds: [], qty: 1 },
       { itemId: "broasted", variationId: null, extraIds: [], qty: MAX_QTY },
     ]);
-    expect(priceLines(clean)[1].unitHalalas).toBe(2700);
+    expect(priceLines(clean)[1].unitHalalas).toBe(2200);
   });
 });

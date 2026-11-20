@@ -10,9 +10,10 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { MobileNavigation } from "./MobileNavigation";
 import { localePath, type RoutePath } from "@/lib/links";
 
-export const NAV_ITEMS: { path: RoutePath; key: "home" | "menu" | "about" | "contact" }[] = [
+export const NAV_ITEMS: { path: RoutePath; key: "home" | "menu" | "catering" | "about" | "contact" }[] = [
   { path: "", key: "home" },
   { path: "/menu", key: "menu" },
+  { path: "/catering", key: "catering" },
   { path: "/about", key: "about" },
   { path: "/contact", key: "contact" },
 ];

@@ -25,7 +25,7 @@ export function FeaturedDishes() {
   return (
     <section className="bg-surface py-20 sm:py-28" aria-labelledby="featured-title">
       <div className="container-x grid items-start gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
-        <div className="relative hidden aspect-[4/5] overflow-hidden lg:sticky lg:top-[calc(var(--header-h)+32px)] lg:block" data-reveal>
+        <div className="relative hidden aspect-[4/3] overflow-hidden lg:sticky lg:top-[calc(var(--header-h)+32px)] lg:block" data-reveal>
           {items.map((item, i) =>
             item.image ? (
               <Image

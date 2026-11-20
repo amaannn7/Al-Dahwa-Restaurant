@@ -7,7 +7,8 @@ import { useCart } from "@/components/cart/CartProvider";
 import { useI18n } from "@/components/providers/I18nProvider";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 import { useDialog } from "@/components/ui/useDialog";
-import { getMenuItem, type MenuItem } from "@/data/menu";
+import { getMenuItem, orderName, type MenuItem } from "@/data/menu";
+import { caloriesLabel } from "./MenuItemCard";
 import { clampQty, defaultVariationId, isOrderable, unitPriceHalalas } from "@/lib/cart";
 import { formatSAR, formatSARFromNumber } from "@/lib/money";
 import { DishTile } from "./DishTile";
@@ -37,7 +38,7 @@ function ItemDialogInner({ item, onClose }: { item: MenuItem; onClose: () => voi
 
   const submit = () => {
     if (!orderable) return;
-    add({ itemId: item.id, variationId, extraIds, qty: clampQty(qty) }, t.cart.added(item.name[locale]));
+    add({ itemId: item.id, variationId, extraIds, qty: clampQty(qty) }, t.cart.added(orderName(item, locale)));
     onClose();
   };
 
@@ -74,7 +75,8 @@ function ItemDialogInner({ item, onClose }: { item: MenuItem; onClose: () => voi
             <h2 id={titleId} className="t-heading pe-10 text-[22px]">
               {item.name[locale]}
             </h2>
-            <p className="mt-3 text-[15px]">{item.description[locale]}</p>
+            {item.description[locale] ? <p className="mt-3 text-[15px]">{item.description[locale]}</p> : null}
+            {caloriesLabel(item, t) ? <p className="t-meta mt-2 text-muted">{caloriesLabel(item, t)}</p> : null}
 
             {item.variations ? (
               <fieldset className="mt-6">
@@ -154,7 +156,9 @@ function ItemDialogInner({ item, onClose }: { item: MenuItem; onClose: () => voi
                 </button>
               </>
             ) : (
-              <p className="t-label py-3 text-danger">{t.menu.unavailable}</p>
+              <p className={`t-label py-3 ${item.dineInOnly ? "text-gold" : "text-danger"}`}>
+                {item.dineInOnly ? `${t.menu.dineIn} · ${formatSARFromNumber(item.price, locale)}` : t.menu.unavailable}
+              </p>
             )}
           </div>
         </div>

@@ -7,6 +7,7 @@ import { useI18n } from "@/components/providers/I18nProvider";
 import { formatSAR } from "@/lib/money";
 import { displayPhone, telHref } from "@/lib/links";
 import { buildOrderUrl, isValidPhone, type CustomerDetails } from "@/lib/whatsapp";
+import { orderName } from "@/data/menu";
 import { useCart } from "./CartProvider";
 import { CartSummary } from "./CartSummary";
 import { optionLabels } from "./CartItem";
@@ -192,7 +193,7 @@ export function CheckoutForm({
               return (
                 <li key={l.key} className="flex justify-between gap-4">
                   <span>
-                    <span className="text-bone">{l.qty} × {l.item.name[locale]}</span>
+                    <span className="text-bone">{l.qty} × {orderName(l.item, locale)}</span>
                     {opts.length ? <span className="block text-[13px]">{opts.join(locale === "ar" ? "، " : ", ")}</span> : null}
                     <span className="block text-[13px] tabular-nums">{formatSAR(l.unitHalalas, locale)} {l.qty > 1 ? t.cart.each : ""}</span>
                   </span>

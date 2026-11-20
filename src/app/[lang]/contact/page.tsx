@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { MapPin, Phone } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, ArrowRight, MapPin, Phone } from "lucide-react";
 import heroImg from "@/assets/photos/table-tea.jpg";
-import { directionsUrl, restaurant } from "@/config/restaurant";
+import { directionsUrl, getWhatsAppNumber, restaurant } from "@/config/restaurant";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { pageMetadata, SEO } from "@/lib/seo";
-import { displayPhone, fullAddress, telHref, whatsappEnquiryHref } from "@/lib/links";
+import { displayPhone, fullAddress, localePath, telHref, whatsappEnquiryHref } from "@/lib/links";
 import { PageHero } from "@/components/ui/PageHero";
-import { InstagramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { SocialLinks } from "@/components/ui/SocialLinks";
 import { LocationSection } from "@/components/home/LocationSection";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/contact">): Promise<Metadata> {
@@ -22,12 +25,24 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
   if (!isLocale(lang)) notFound();
   const t = getDictionary(lang);
   const wa = whatsappEnquiryHref(lang);
+  const Arrow = lang === "ar" ? ArrowLeft : ArrowRight;
 
   const cards = [
     wa
-      ? { key: "wa", icon: <WhatsAppIcon className="size-6" />, title: t.contact.whatsappTitle, text: t.contact.whatsappText, href: wa, label: t.location.whatsapp, external: true }
+      ? { key: "wa", icon: <WhatsAppIcon className="size-6" />, title: t.contact.whatsappTitle, text: (
+          <>
+            {t.contact.whatsappText}
+            <span className="mt-1 block"><span dir="ltr">{displayPhone(`+${getWhatsAppNumber()}`)}</span></span>
+          </>
+        ), href: wa, label: t.location.whatsapp, external: true }
       : null,
-    { key: "call", icon: <Phone className="size-6" aria-hidden />, title: t.contact.callTitle, text: <span dir="ltr">{displayPhone(restaurant.phone)}</span>, href: telHref, label: t.location.call, external: false },
+    { key: "call", icon: <Phone className="size-6" aria-hidden />, title: t.contact.callTitle, text: (
+        <>
+          {[restaurant.phone, ...restaurant.altPhones].map((p) => (
+            <span key={p} className="block"><span dir="ltr">{displayPhone(p)}</span></span>
+          ))}
+        </>
+      ), href: telHref, label: t.location.call, external: false },
     { key: "visit", icon: <MapPin className="size-6" aria-hidden />, title: t.contact.visitTitle, text: fullAddress(lang), href: directionsUrl, label: t.location.directions, external: true },
   ].filter((c): c is NonNullable<typeof c> => c !== null);
 
@@ -54,19 +69,29 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
             </a>
           ))}
         </div>
-        {restaurant.social.instagram ? (
-          <div className="container-x mt-10 flex items-center justify-center gap-4" data-reveal>
-            <span className="t-label text-bone">{t.contact.social}</span>
-            <a
-              href={restaurant.social.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-2 border border-line-strong px-4 text-bone transition-colors hover:border-gold hover:text-gold"
-            >
-              <InstagramIcon /> <span dir="ltr">@aldafwa</span>
-            </a>
-          </div>
-        ) : null}
+      </section>
+      <section className="bg-ink pt-16 sm:pt-20">
+        <div className="container-x">
+          <SectionHeading script={t.social.script} title={t.contact.social}>
+            <p>{t.social.text}</p>
+          </SectionHeading>
+          <SocialLinks locale={lang} variant="cards" className="mx-auto mt-10 max-w-6xl" />
+          <Link
+            href={localePath(lang, "/catering")}
+            className="group mx-auto mt-10 flex max-w-6xl flex-col gap-4 border border-gold-line bg-surface p-6 transition-colors duration-300 hover:border-gold sm:flex-row sm:items-center sm:justify-between sm:p-8"
+            data-reveal
+          >
+            <span>
+              <span className="t-script block text-[24px]">{t.catering.teaserScript}</span>
+              <span className="t-heading mt-1 block text-[19px]">{t.catering.teaserTitle}</span>
+              <span className="mt-2 block text-[15px]">{t.catering.formsText}</span>
+            </span>
+            <span className="btn btn-primary t-action shrink-0">
+              {t.catering.planCta}
+              <Arrow className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" aria-hidden />
+            </span>
+          </Link>
+        </div>
       </section>
       <LocationSection locale={lang} />
     </>

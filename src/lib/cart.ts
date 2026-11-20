@@ -76,7 +76,7 @@ export function unitPriceHalalas(
 }
 
 export function isOrderable(item: MenuItem): boolean {
-  if (!item.available) return false;
+  if (!item.available || item.dineInOnly) return false;
   if (item.variations?.options.length) {
     return item.variations.options.some((o) => isValidPrice(o.price));
   }

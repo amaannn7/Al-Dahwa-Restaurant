@@ -2,18 +2,19 @@
 
 ## A. Needed from the restaurant (blocking)
 
-- [ ] **WhatsApp number** that receives orders. Is +966 11 478 7671 on WhatsApp (WhatsApp Business on a landline), or is there a separate mobile? Ordering stays switched off until this is set.
-- [ ] **Check the menu transcription** in `docs/04-menu-source.md`: the four corrections and the Arabic dish names.
+- [ ] **Check the menu corrections** in `docs/04-menu-source.md`: a few English names on the QR menu were fixed (for example "Beef Salad" for سلطة شمندر is shown as Beetroot Salad), and two dishes with no English name were named by us.
+- [ ] **Catering:** which of the services on the inquiry form they actually offer (pickup, delivery to a venue, buffet setup, full service with staff), any minimum order or guest count, and lead time. The form says the restaurant will confirm, but options they never offer should be removed in `src/lib/catering.ts`.
+- [ ] **Send a test catering inquiry and a test meeting request** from a phone and confirm they arrive on the WhatsApp number below and read well.
 
-Done: logo (supplied), phone +966 11 478 7671 (confirmed), full menu and prices (from Google Maps).
+Done: logo (supplied), phone +966 11 478 7671 (confirmed), full menu, prices, calories and dish photos (from the restaurant's own QR menu, confirmed by the client on 21 Nov 2026 as the current menu), **WhatsApp +966 50 422 4206** (from the official Linktree, 20 Nov 2026; orders, catering inquiries and meeting requests all go there), TikTok and second landline +966 11 479 1868 (Linktree).
 
 ## B. Strongly recommended
 
 - [ ] Confirm opening hours (12 PM to 2 AM daily is shown, from Google), especially Friday.
 - [ ] Own photos: dishes, interior, exterior. They replace the illustrative stock photos.
-- [ ] Confirm the Instagram account @aldafwa is theirs and active; add any TikTok / Snapchat / X accounts.
+- [ ] Instagram: @aldafwa is listed on three directories but **not** on the official Linktree, so the site no longer links it. If it is theirs, add it back in one line (`social` in `src/config/restaurant.ts`).
 - [ ] Do they deliver WhatsApp orders themselves? If yes, the delivery area and fee (see the editing guide). Google links to HungerStation for delivery; a HungerStation button can be added if wanted.
-- [ ] Is VAT included in menu prices? (Prices are shown exactly as on Google; no tax line is added.)
+- [ ] Open Buffet (45 SAR) is shown under Grills as "Dine-in only" and cannot be ordered on WhatsApp. Confirm that is right, and whether it should also be mentioned on the Catering page.
 - [ ] A short verified history for the About page, if they want one (the logo gives 1990).
 - [ ] Confirm family section and takeaway are current.
 
@@ -21,7 +22,7 @@ Done: logo (supplied), phone +966 11 478 7671 (confirmed), full menu and prices 
 
 - [ ] Hosting: Vercel (Next.js 16). Environment variables:
   - `NEXT_PUBLIC_SITE_URL=https://<domain>`
-  - `NEXT_PUBLIC_WHATSAPP_NUMBER=9665XXXXXXXX` (or set it in `src/config/restaurant.ts`)
+  - `NEXT_PUBLIC_WHATSAPP_NUMBER` only if it should differ from the Linktree number set in `src/config/restaurant.ts` (966504224206)
   - `NEXT_PUBLIC_ALLOW_INDEXING=true` **only on the production deployment**. Staging stays `noindex` and `robots.txt` disallows everything until then.
 - [ ] Send a real test order from a phone to the restaurant's WhatsApp, in Arabic and English, and have them confirm it reads well.
 - [ ] Open the site on a real iPhone (Safari) and Android (Chrome).

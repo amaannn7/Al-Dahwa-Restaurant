@@ -3,8 +3,8 @@ import { addLine, computeTotals, priceLines, type CartLine } from "@/lib/cart";
 import { buildOrderMessage, buildOrderUrl, cleanText, isValidPhone, waLink, MAX_WA_URL_LENGTH } from "@/lib/whatsapp";
 
 const lines = addLine(
-  addLine([], { itemId: "shish-tawouk", variationId: "plate", extraIds: [], qty: 2 }),
-  { itemId: "chicken-shawarma", variationId: "jumbo", extraIds: [], qty: 1 },
+  addLine([], { itemId: "shish-tawouk", variationId: null, extraIds: [], qty: 2 }),
+  { itemId: "juice-orange", variationId: null, extraIds: [], qty: 1 },
 );
 const priced = priceLines(lines);
 const totals = computeTotals(priced);
@@ -16,13 +16,13 @@ describe("order message", () => {
     expect(msg).toContain("Hello Al-Dafwa Restaurant!");
     expect(msg).toContain("Customer name: Ahmed & Sons");
     expect(msg).toContain("Order type: Pickup");
-    expect(msg).toContain("1. Shish Tawouk (Plate)");
+    expect(msg).toContain("1. Shish Tawok\n");
     expect(msg).toContain("Quantity: 2");
-    expect(msg).toContain("Price: SAR 42 each");
-    expect(msg).toContain("Subtotal: SAR 84");
-    expect(msg).toContain("2. Chicken Shawarma (Jumbo)");
-    expect(msg).toContain("Price: SAR 19\n");
-    expect(msg).toContain("Total: SAR 103");
+    expect(msg).toContain("Price: SAR 35 each");
+    expect(msg).toContain("Subtotal: SAR 70");
+    expect(msg).toContain("2. Orange (Juices)\n");
+    expect(msg).toContain("Price: SAR 7\n");
+    expect(msg).toContain("Total: SAR 77");
     expect(msg).toContain("No onions, please. #1 ?=&");
     expect(msg).toContain("Please confirm my order.");
   });
@@ -30,8 +30,9 @@ describe("order message", () => {
     const msg = buildOrderMessage({ locale: "ar", restaurantName: "مطاعم الدفواء", lines: priced, totals, customer: { ...customer, name: "أحمد" } });
     expect(msg).toContain("مرحباً مطاعم الدفواء!");
     expect(msg).toContain("اسم العميل: أحمد");
-    expect(msg).toContain("1. شيش طاووق (صحن)");
-    expect(msg).toContain("الإجمالي: 103 ر.س");
+    expect(msg).toContain("1. شيش طاووق\n");
+    expect(msg).toContain("2. برتقال (العصائر)\n");
+    expect(msg).toContain("الإجمالي: 77 ر.س");
   });
   it("URL-encodes everything and round-trips exactly", () => {
     const msg = buildOrderMessage({ locale: "ar", restaurantName: "مطاعم الدفواء", lines: priced, totals, customer });
@@ -42,7 +43,7 @@ describe("order message", () => {
     expect(text).toBe(msg);
   });
   it("falls back to a compact layout for long orders, and refuses absurdly long ones", () => {
-    const many: CartLine[] = Array.from({ length: 22 }, (_, i) => ({ itemId: ["shish-tawouk", "broasted", "hummus", "fattoush", "umm-ali", "tabbouleh"][i % 6], variationId: i % 6 === 0 ? (i % 12 ? "plate" : "sandwich") : null, extraIds: [], qty: (i % 5) + 1 }));
+    const many: CartLine[] = Array.from({ length: 22 }, (_, i) => ({ itemId: ["shish-tawouk", "broasted", "hummus", "fattoush", "umm-ali", "tabbouleh"][i % 6], variationId: null, extraIds: [], qty: (i % 5) + 1 }));
     const p = priceLines(many.reduce((acc, l) => addLine(acc, l), [] as CartLine[]));
     const res = buildOrderUrl("966500000000", { locale: "ar", restaurantName: "مطاعم الدفواء", lines: p, totals: computeTotals(p), customer: { ...customer, notes: "ملاحظة ".repeat(70) } });
     expect(res).not.toBeNull();

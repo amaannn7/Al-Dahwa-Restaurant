@@ -41,9 +41,15 @@ export function LocationSection({ locale, headingAs = "h2", showHeading = true }
                 <Phone className="mt-1 size-5 shrink-0 text-gold" aria-hidden />
                 <div>
                   <h3 className="t-label text-bone">{t.location.phone}</h3>
-                  <a href={telHref} className="link-line mt-2 inline-block text-[15px]">
-                    <span dir="ltr">{displayPhone(restaurant.phone)}</span>
-                  </a>
+                  <ul className="mt-2 space-y-1 text-[15px]">
+                    {[restaurant.phone, ...restaurant.altPhones].map((p) => (
+                      <li key={p}>
+                        <a href={`tel:${p}`} className="link-line inline-block">
+                          <span dir="ltr">{displayPhone(p)}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </li>
               <li className="flex gap-4">

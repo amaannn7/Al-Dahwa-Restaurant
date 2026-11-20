@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { allowIndexing, restaurant } from "@/config/restaurant";
 import type { Locale } from "@/i18n/config";
 import { localePath, type RoutePath } from "@/lib/links";
+import { sameAsUrls } from "@/lib/social";
 
 export const OG_IMAGE = {
   url: "/og-image.jpg",
@@ -37,21 +38,25 @@ export function pageMetadata(locale: Locale, path: RoutePath, title: string, des
 export const SEO = {
   en: {
     siteTitle: "Al-Dafwa Restaurant | Grills, Shawarma & Broasted in Al Malaz, Riyadh",
-    home: "Arabic and Middle Eastern restaurant on Omar Bin Abdulaziz Road, Al Malaz, Riyadh. Browse grills, shawarma and broasted chicken, then order on WhatsApp.",
+    home: "Lebanese and Arabic restaurant on Omar Bin Abdulaziz Road, Al Malaz, Riyadh. Browse grills, shawarma and broasted chicken, then order on WhatsApp.",
     menuTitle: "Menu | Al-Dafwa Restaurant, Riyadh",
     menu: "The full Al-Dafwa menu with prices: grills, shawarma, broasted, seafood, mahashi, mezze, pies, breakfast, juices and desserts. Order on WhatsApp.",
     aboutTitle: "About | Al-Dafwa Restaurant, Al Malaz",
-    about: "Al-Dafwa Restaurant: Arabic and Middle Eastern food on Omar Bin Abdulaziz Road in Al Malaz, Riyadh, with a heritage of authentic taste since 1990.",
+    about: "Al-Dafwa Restaurant: Lebanese and Arabic food on Omar Bin Abdulaziz Road in Al Malaz, Riyadh, with a heritage of authentic taste since 1990.",
+    cateringTitle: "Catering & Bulk Orders | Al-Dafwa Restaurant, Riyadh",
+    catering: "Plan catering or a large order with Al-Dafwa Restaurant in Riyadh: grills, mahashi, mezze and juice by the gallon. Send an inquiry or book a meeting on WhatsApp.",
     contactTitle: "Contact & Location | Al-Dafwa Restaurant, Riyadh",
     contact: "Find Al-Dafwa Restaurant on Omar Bin Abdulaziz Road, Al Malaz, Riyadh. Get directions, call or message us.",
   },
   ar: {
     siteTitle: "مطاعم الدفواء | مشويات وشاورما وبروستد في الملز، الرياض",
-    home: "مطعم عربي وشرق أوسطي على طريق عمر بن عبدالعزيز في حي الملز بالرياض. تصفح قائمة المشويات والشاورما والبروستد واطلب عبر واتساب.",
+    home: "مطعم لبناني عربي على طريق عمر بن عبدالعزيز في حي الملز بالرياض. تصفح قائمة المشويات والشاورما والبروستد واطلب عبر واتساب.",
     menuTitle: "القائمة | مطاعم الدفواء، الرياض",
     menu: "قائمة مطاعم الدفواء كاملة بالأسعار: مشويات وشاورما وبروستد ومأكولات بحرية ومحاشي ومقبلات وفطائر وفطور وعصائر وحلويات. اطلب عبر واتساب.",
     aboutTitle: "من نحن | مطاعم الدفواء، الملز",
-    about: "مطاعم الدفواء: مأكولات عربية وشرق أوسطية على طريق عمر بن عبدالعزيز في حي الملز بالرياض، عراقة الطعم الأصيل منذ 1990.",
+    about: "مطاعم الدفواء: مأكولات لبنانية وعربية على طريق عمر بن عبدالعزيز في حي الملز بالرياض، عراقة الطعم الأصيل منذ 1990.",
+    cateringTitle: "الولائم والطلبات الكبيرة | مطاعم الدفواء، الرياض",
+    catering: "خطط لوليمتك أو طلبك الكبير مع مطاعم الدفواء في الرياض: مشويات ومحاشي ومقبلات وعصير بالجالون. أرسل استفساراً أو احجز موعداً عبر واتساب.",
     contactTitle: "تواصل معنا والموقع | مطاعم الدفواء، الرياض",
     contact: "موقع مطاعم الدفواء على طريق عمر بن عبدالعزيز، الملز، الرياض. احصل على الاتجاهات أو اتصل بنا أو راسلنا.",
   },
@@ -69,7 +74,7 @@ export function restaurantJsonLd(locale: Locale) {
     url: `${restaurant.siteUrl}${localePath(locale)}`,
     menu: `${restaurant.siteUrl}${localePath(locale, "/menu")}`,
     telephone: restaurant.phone,
-    servesCuisine: locale === "ar" ? ["عربي", "شرق أوسطي"] : ["Arabic", "Middle Eastern"],
+    servesCuisine: locale === "ar" ? ["لبناني", "عربي"] : ["Lebanese", "Arabic"],
     address: {
       "@type": "PostalAddress",
       streetAddress: a.street[locale],
@@ -81,7 +86,7 @@ export function restaurantJsonLd(locale: Locale) {
     geo: { "@type": "GeoCoordinates", latitude: restaurant.geo.lat, longitude: restaurant.geo.lng },
     hasMap: restaurant.googleMapsUrl,
     currenciesAccepted: restaurant.currency,
-    sameAs: Object.values(restaurant.social),
+    sameAs: sameAsUrls(),
   };
   data.foundingDate = String(restaurant.since);
   if (restaurant.openingHours) {

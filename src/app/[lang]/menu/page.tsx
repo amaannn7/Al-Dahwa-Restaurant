@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import heroImg from "@/assets/photos/table-spread.jpg";
+import heroImg from "@/assets/photos/arabic-feast.jpg";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { menuItems, visibleCategories } from "@/data/menu";
@@ -43,6 +43,7 @@ export default async function MenuPage({ params }: PageProps<"/[lang]/menu">) {
               name: i.name[lang],
               description: i.description[lang],
               offers: { "@type": "Offer", price: i.variations?.options[0]?.price ?? i.price, priceCurrency: "SAR" },
+              ...(i.calories ? { nutrition: { "@type": "NutritionInformation", calories: `${i.calories} calories` } } : {}),
             })),
         })),
       };
@@ -53,6 +54,7 @@ export default async function MenuPage({ params }: PageProps<"/[lang]/menu">) {
       <PageHero image={heroImg} script={t.menu.script} title={t.menu.title} text={t.menu.text} />
       <div className="container-x">
         <PlaceholderNotice text={t.menu.placeholder} className="mx-auto mb-10 max-w-3xl" />
+        <p className="pt-10 text-center text-[14px] text-muted">{t.menu.vat}</p>
       </div>
       <MenuBrowser />
       {wa ? (

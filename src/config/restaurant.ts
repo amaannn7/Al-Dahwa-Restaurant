@@ -11,9 +11,8 @@ export const restaurant = {
   name: { en: "Al-Dafwa Restaurant", ar: "مطاعم الدفواء" },
   shortName: { en: "Al-Dafwa", ar: "الدفواء" },
 
-  // Cuisine labels as listed publicly (ksarestaurant.com: "Arabic";
-  // top-rated.online: "Middle eastern restaurant").
-  cuisine: { en: "Arabic and Middle Eastern", ar: "عربي وشرق أوسطي" },
+  // From the restaurant's own Linktree bio: "مطعم لبناني عربي".
+  cuisine: { en: "Lebanese and Arabic", ar: "لبناني عربي" },
 
   address: {
     street: { en: "Omar Bin Abdulaziz Road", ar: "طريق عمر بن عبدالعزيز" },
@@ -32,11 +31,14 @@ export const restaurant = {
   // Confirmed by the client (19 Nov 2026); also the number on Google Maps.
   phone: "+966114787671",
 
-  // NEEDS CONFIRMATION: the restaurant's WhatsApp number in international
-  // format, digits only (e.g. "9665XXXXXXXX"). Not published anywhere we
-  // could verify. Can also be set with NEXT_PUBLIC_WHATSAPP_NUMBER.
-  // While empty, WhatsApp ordering and WhatsApp buttons are switched off.
-  whatsapp: "",
+  // Second landline listed in the restaurant's Linktree bio (0114791868).
+  altPhones: ["+966114791868"] as string[],
+
+  // From the restaurant's official Linktree (linktr.ee/aldafwa_restaurant),
+  // whose WhatsApp button opens wa.me/966504224206. International format,
+  // digits only. NEXT_PUBLIC_WHATSAPP_NUMBER overrides it. Orders, catering
+  // inquiries and meeting requests are all sent to this number.
+  whatsapp: "966504224206",
 
   // From the Google Maps listing (19 Nov 2026: "Open, closes 2 AM"; Thursday
   // 12 PM to 2 AM) and its daily 12 PM to 2 AM schedule as mirrored on
@@ -51,10 +53,20 @@ export const restaurant = {
   // Brand line from the official logo.
   since: 1990,
 
-  // NEEDS CONFIRMATION: listed as the website on three directories.
-  social: {
-    instagram: "https://instagram.com/aldafwa",
-  } as Record<string, string>,
+  /**
+   * Social accounts and links, in display order. All from the restaurant's
+   * official Linktree (20 Nov 2026). WhatsApp is added automatically from
+   * `whatsapp` above. Supported ids (each has an icon): tiktok, instagram,
+   * linktree, maps. Remove a line to hide it everywhere.
+   *
+   * Instagram (instagram.com/aldafwa) appears on three directories but NOT on
+   * the official Linktree, so it is left out until the restaurant confirms it.
+   */
+  social: [
+    { id: "tiktok", url: "https://www.tiktok.com/@aldafwarestaurant", handle: "@aldafwarestaurant" },
+    { id: "maps", url: "https://maps.app.goo.gl/YFLaZmm4hpor3LLW8", handle: "Google Maps" },
+    { id: "linktree", url: "https://linktr.ee/aldafwa_restaurant", handle: "aldafwa_restaurant" },
+  ] as SocialLink[],
 
   /**
    * Order types offered in WhatsApp checkout.
@@ -77,6 +89,10 @@ export const restaurant = {
 } as const;
 
 export type OrderType = "pickup" | "delivery";
+
+export type SocialId = "whatsapp" | "tiktok" | "instagram" | "linktree" | "maps";
+
+export type SocialLink = { id: SocialId; url: string; handle: string };
 
 export type Charge = {
   id: string;

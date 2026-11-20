@@ -1,6 +1,6 @@
 import Image from "next/image";
 import chickenRice from "@/assets/photos/chicken-rice.jpg";
-import spread from "@/assets/photos/table-spread.jpg";
+import spread from "@/assets/photos/arabic-feast.jpg";
 import platter from "@/assets/photos/grill-platter.jpg";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";

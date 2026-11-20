@@ -6,6 +6,7 @@ import type { OrderType } from "@/config/restaurant";
 import type { Locale } from "@/i18n/config";
 import { formatSAR } from "@/lib/money";
 import type { PricedLine, Totals } from "@/lib/cart";
+import { orderName } from "@/data/menu";
 
 export type CustomerDetails = {
   name: string;
@@ -97,7 +98,7 @@ export function buildOrderMessage(opts: {
   lines
     .filter((l) => l.orderable)
     .forEach((line, i) => {
-      const name = line.item.name[locale];
+      const name = orderName(line.item, locale);
       const options: string[] = [];
       if (line.variationId && line.item.variations) {
         const v = line.item.variations.options.find((o) => o.id === line.variationId);

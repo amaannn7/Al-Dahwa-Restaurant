@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import { useI18n } from "@/components/providers/I18nProvider";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 import { DishTile } from "@/components/menu/DishTile";
+import { orderName } from "@/data/menu";
 import type { PricedLine } from "@/lib/cart";
 import { formatSAR } from "@/lib/money";
 import { useCart } from "./CartProvider";
@@ -25,7 +26,7 @@ export function optionLabels(line: PricedLine, locale: "ar" | "en"): string[] {
 export function CartItem({ line }: { line: PricedLine }) {
   const { locale, t } = useI18n();
   const { setQty, remove } = useCart();
-  const name = line.item.name[locale];
+  const name = orderName(line.item, locale);
   const options = optionLabels(line, locale);
 
   return (

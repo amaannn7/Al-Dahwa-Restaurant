@@ -1,209 +1,140 @@
-/**
- * Guards the menu against transcription mistakes. GOOGLE_MENU is every line of
- * Al-Dafwa's Google Maps menu exactly as supplied by the client (screenshots,
- * 19 Nov 2026), with the dish/option it maps to on the website.
- */
 import { describe, expect, it } from "vitest";
-import { categories, getMenuItem, menuItems } from "@/data/menu";
+import { menuItems } from "@/data/menu";
 
-type Line = [section: string, googleName: string, sar: number, itemId: string, variationId: string | null];
-
-export const GOOGLE_MENU: Line[] = [
-  ["Rice Dishes", "White Rice", 8, "white-rice", null],
-  ["Rice Dishes", "Red Rice", 8, "red-rice", null],
-
-  ["Salads And Appetizers", "Cabbage Salad With Mayonnaise", 14, "cabbage-salad", null],
-  ["Salads And Appetizers", "Green Salad", 14, "green-salad", null],
-  ["Salads And Appetizers", "Spicy Potato Salad", 14, "spicy-potato-salad", null],
-  ["Salads And Appetizers", "Grape Leaves", 14, "grape-leaves-starter", null],
-  ["Salads And Appetizers", "Fatteh Hummus", 17, "fatteh-hummus", null],
-  ["Salads And Appetizers", "Beetroot Salad", 14, "beetroot-salad", null],
-  ["Salads And Appetizers", "Eggplant Mousagah", 14, "moussaka", null],
-  ["Salads And Appetizers", "Tabouleh", 14, "tabbouleh", null],
-  ["Salads And Appetizers", "Baba Ghanouj", 14, "baba-ghanouj", null],
-  ["Salads And Appetizers", "Meat Hummus", 22, "meat-hummus", null],
-  ["Salads And Appetizers", "Fattoush", 14, "fattoush", null],
-  ["Salads And Appetizers", "Corn Salad", 14, "corn-salad", null],
-  ["Salads And Appetizers", "Msabbaha", 14, "msabbaha", null],
-  ["Salads And Appetizers", "Beiruti Hummus", 16, "beiruti-hummus", null],
-  ["Salads And Appetizers", "Hummus", 14, "hummus", null],
-  ["Salads And Appetizers", "Mtabbal", 14, "mtabbal", null],
-
-  ["Sea Food", "Fish Awsal-Sandwich", 18, "fish-awsal", "sandwich"],
-  ["Sea Food", "Fish Fillets", 62, "fish-fillets", null],
-  ["Sea Food", "Fried Fillet", 62, "fried-fillet", null],
-  ["Sea Food", "Grilled Shrimp-Sandwich", 22, "grilled-shrimp", "sandwich"],
-  ["Sea Food", "Fried Shrimp-Sandwich", 22, "fried-shrimp", "sandwich"],
-  ["Sea Food", "Fried Shrimp-Dish", 62, "fried-shrimp", "plate"],
-  ["Sea Food", "Mackerel Fish", 62, "mackerel", null],
-  ["Sea Food", "Grilled Shrimp-Dish", 62, "grilled-shrimp", "plate"],
-  ["Sea Food", "Fish Awsal-Dish", 62, "fish-awsal", "plate"],
-
-  ["Shawarma And Broasted", "Shawarma Dish-Meat", 32, "meat-shawarma", "plate"],
-  ["Shawarma And Broasted", "Shawarma Jumbo Chicken", 19, "chicken-shawarma", "jumbo"],
-  ["Shawarma And Broasted", "Shawarma Dish-Chicken", 30, "chicken-shawarma", "plate"],
-  ["Shawarma And Broasted", "Shawarma-Meat", 10, "meat-shawarma", "sandwich"],
-  ["Shawarma And Broasted", "Arabic Shawarma-Meat", 26, "arabic-shawarma", "meat"],
-  ["Shawarma And Broasted", "Shawarma-Chicken", 9, "chicken-shawarma", "sandwich"],
-  ["Shawarma And Broasted", "Shawarma Jumbo Meat", 22, "meat-shawarma", "jumbo"],
-  ["Shawarma And Broasted", "Arabic Shawarma-Chicken", 24, "arabic-shawarma", "chicken"],
-  ["Shawarma And Broasted", "Brosted", 27, "broasted", null],
-
-  ["Beverages", "Mineral Water-Large", 3, "water", "large"],
-  ["Beverages", "Mineral Water-Small", 1, "water", "small"],
-  ["Beverages", "Mirinda", 5, "mirinda", null],
-  ["Beverages", "Dew", 5, "dew", null],
-  ["Beverages", "Pepsi", 5, "pepsi", null],
-  ["Beverages", "7 Up", 5, "7up", null],
-
-  ["Hot Appetizers", "Samosas", 3, "samosa", null],
-  ["Hot Appetizers", "Kibbeh", 5, "kibbeh", null],
-  ["Hot Appetizers", "Spring Roll", 4, "spring-roll", null],
-
-  ["Juices", "Pomegranate Juice-Small", 8, "juice-pomegranate", "small"],
-  ["Juices", "Melon Juice-Large", 14, "juice-melon", "large"],
-  ["Juices", "Apple Juice-Small", 8, "juice-apple", "small"],
-  ["Juices", "Guava Juice-Small", 8, "juice-guava", "small"],
-  ["Juices", "Fresh Mango Juice-Gallon", 35, "juice-mango", "gallon"],
-  ["Juices", "Orange Juice-Small", 8, "juice-orange", "small"],
-  ["Juices", "Melon Juice-Gallon", 35, "juice-melon", "gallon"],
-  ["Juices", "Guava Juice-Large", 14, "juice-guava", "large"],
-  ["Juices", "Melon Juice-Small", 8, "juice-melon", "small"],
-  ["Juices", "Pomegranate Juice-Large", 14, "juice-pomegranate", "large"],
-  ["Juices", "Banana With Milk Juice-Gallon", 35, "juice-banana-milk", "gallon"],
-  ["Juices", "Pineapple Juice-Small", 8, "juice-pineapple", "small"],
-  ["Juices", "Avocado Juice-Gallon", 35, "juice-avocado", "gallon"],
-  ["Juices", "Orange Juice-Large", 14, "juice-orange", "large"],
-  ["Juices", "Pineapple Juice-Gallon", 35, "juice-pineapple", "gallon"],
-  ["Juices", "Carrot Juice-Small", 8, "juice-carrot", "small"],
-  ["Juices", "Kiwi Juice-Large", 17, "juice-kiwi", "large"],
-  ["Juices", "Strawberry Juice-Small", 8, "juice-strawberry", "small"],
-  ["Juices", "Carrot Juice-Large", 14, "juice-carrot", "large"],
-  ["Juices", "Pomegranate Juice-Gallon", 35, "juice-pomegranate", "gallon"],
-  ["Juices", "Fresh Mango Juice-Large", 14, "juice-mango", "large"],
-  ["Juices", "Fresh Mango Juice-Small", 8, "juice-mango", "small"],
-  ["Juices", "Banana With Milk Juice-Large", 14, "juice-banana-milk", "large"],
-  ["Juices", "Avocado Juice-Large", 17, "juice-avocado", "large"],
-  ["Juices", "Carrot Juice-Gallon", 35, "juice-carrot", "gallon"],
-  ["Juices", "Strawberry Juice-Gallon", 35, "juice-strawberry", "gallon"],
-  ["Juices", "Kiwi Juice-Gallon", 35, "juice-kiwi", "gallon"],
-  ["Juices", "Apple Juice-Gallon", 35, "juice-apple", "gallon"],
-  ["Juices", "Apple Juice-Large", 14, "juice-apple", "large"],
-  ["Juices", "Strawberry Juice-Large", 14, "juice-strawberry", "large"],
-  ["Juices", "Banana With Milk Juice-Small", 8, "juice-banana-milk", "small"],
-  ["Juices", "Guava Juice-Gallon", 35, "juice-guava", "gallon"],
-  ["Juices", "Pineapple Juice-Large", 14, "juice-pineapple", "large"],
-  ["Juices", "Orange Juice-Gallon", 35, "juice-orange", "gallon"],
-
-  ["Mahashi", "Pomegranate Molasses Grape Leaves-Large", 78, "grape-leaves-pomegranate", "large"],
-  ["Mahashi", "Classic Grape Leaves-Small", 24, "grape-leaves-classic", "small"],
-  ["Mahashi", "Classic Grape Leaves-Medium", 54, "grape-leaves-classic", "medium"],
-  ["Mahashi", "Classic Grape Leaves-Large", 78, "grape-leaves-classic", "large"],
-  ["Mahashi", "Classic Stuffed Cabbage-Small", 22, "stuffed-cabbage-classic", "small"],
-  ["Mahashi", "Spicy Grape Leaves-Medium", 54, "grape-leaves-spicy", "medium"],
-  ["Mahashi", "Spicy Stuffed Cabbage-Large", 66, "stuffed-cabbage-spicy", "large"],
-  ["Mahashi", "Pomegranate Molasses Grape Leaves-Small", 24, "grape-leaves-pomegranate", "small"],
-  ["Mahashi", "Spicy Grape Leaves-Large", 78, "grape-leaves-spicy", "large"],
-  ["Mahashi", "Spicy Grape Leaves-Small", 24, "grape-leaves-spicy", "small"],
-  ["Mahashi", "Classic Stuffed Cabbage-Large", 66, "stuffed-cabbage-classic", "large"],
-  ["Mahashi", "Spicy Stuffed Cabbage-Medium", 42, "stuffed-cabbage-spicy", "medium"],
-  ["Mahashi", "Classic Stuffed Cabbage-Medium", 42, "stuffed-cabbage-classic", "medium"],
-  ["Mahashi", "Pomegranate Molasses Grape Leaves-Medium", 54, "grape-leaves-pomegranate", "medium"],
-  ["Mahashi", "Spicy Stuffed Cabbage-Small", 22, "stuffed-cabbage-spicy", "small"],
-
-  ["Grills", "Chicken Kebab-Dish", 42, "chicken-kebab", "plate"],
-  ["Grills", "Shish Tawouk-Sandwich", 18, "shish-tawouk", "sandwich"],
-  ["Grills", "Half Chicken On Charcoal", 27, "half-chicken-charcoal", null],
-  ["Grills", "Ribs Sheep", 62, "sheep-ribs", null],
-  ["Grills", "Mixed Grill", 50, "mixed-grill", null],
-  ["Grills", "Chicken Kebab-Sandwich", 18, "chicken-kebab", "sandwich"],
-  ["Grills", "Meat Awsal-Sandwich", 18, "meat-awsal", "sandwich"],
-  ["Grills", "Meat Kebab-Dish", 42, "meat-kebab", "plate"],
-  ["Grills", "Meat Kebab-Sandwich", 18, "meat-kebab", "sandwich"],
-  ["Grills", "Grilled Arayes", 36, "grilled-arayes", null],
-  ["Grills", "Fajita Chicken-Sandwich", 18, "chicken-fajita", "sandwich"],
-  ["Grills", "Meat Awsal-Dish", 50, "meat-awsal", "plate"],
-  ["Grills", "Fajita Chicken-Dish", 30, "chicken-fajita", "plate"],
-  ["Grills", "Cherries Armenian Meat Kebab", 48, "cherry-kebab", null],
-  ["Grills", "Sitak Meat", 48, "meat-steak", null],
-  ["Grills", "Shish Tawouk-Dish", 42, "shish-tawouk", "plate"],
-  ["Grills", "Eggplant Meat Kebab", 42, "eggplant-kebab", null],
-  ["Grills", "Arayes Chicken", 36, "chicken-arayes", null],
-
-  ["Desserts", "Jello", 8, "jello", null],
-  ["Desserts", "Fruit Salad", 14, "fruit-salad", null],
-  ["Desserts", "Umm Ali", 12, "umm-ali", null],
-  ["Desserts", "Creme Caramel", 12, "creme-caramel", null],
-  ["Desserts", "Blancmange", 8, "blancmange", null],
-
-  ["Breakfast", "Chicken Mgalgal-Sandwich", 8, "chicken-mgalgal", "sandwich"],
-  ["Breakfast", "Meat Mgalgal-Sandwich", 10, "meat-mgalgal", "sandwich"],
-  ["Breakfast", "Spicy Potatoes-Dish", 14, "spicy-potatoes", "plate"],
-  ["Breakfast", "Shakshouka Eggs-Sandwich", 4, "shakshouka", "sandwich"],
-  ["Breakfast", "Boiled Eggs-Dish", 7, "boiled-eggs", "plate"],
-  ["Breakfast", "Potatos-Sandwich", 4, "potatoes", "sandwich"],
-  ["Breakfast", "Potatos-Dish", 7, "potatoes", "plate"],
-  ["Breakfast", "Meat Mgalgal-Dish", 19, "meat-mgalgal", "plate"],
-  ["Breakfast", "Hot Dog-Sandwich", 7, "hot-dog", "sandwich"],
-  ["Breakfast", "Spicy Potatoes-Sandwich", 4, "spicy-potatoes", "sandwich"],
-  ["Breakfast", "Boiled Eggs-Sandwich", 4, "boiled-eggs", "sandwich"],
-  ["Breakfast", "Olive", 7, "olives", null],
-  ["Breakfast", "Fried Eggs-Dish", 7, "fried-eggs", "plate"],
-  ["Breakfast", "Shakshouka Eggs-Dish", 7, "shakshouka", "plate"],
-  ["Breakfast", "Hot Dog-Dish", 14, "hot-dog", "plate"],
-  ["Breakfast", "Fried Eggs-Sandwich", 4, "fried-eggs", "sandwich"],
-  ["Breakfast", "Lebanese Foul", 14, "lebanese-foul", null],
-  ["Breakfast", "Chicken Mgalgal-Dish", 17, "chicken-mgalgal", "plate"],
-  ["Breakfast", "Sheep Liver-Dish", 22, "sheep-liver", "plate"],
-  ["Breakfast", "Sunny Side Up Egg", 7, "sunny-side-egg", null],
-  ["Breakfast", "Sheep Liver-Sandwich", 7, "sheep-liver", "sandwich"],
-
-  ["Pies And Pizza", "Cheese Pie", 6, "cheese-pie", null],
-  ["Pies And Pizza", "Ash Albulbul-Medium", 24, "ash-albulbul", "medium"],
-  ["Pies And Pizza", "Spinach Pie", 6, "spinach-pie", null],
-  ["Pies And Pizza", "Labneh Pie", 6, "labneh-pie", null],
-  ["Pies And Pizza", "Lahmah Bel Ajeen", 12, "lahm-bi-ajeen", null],
-  ["Pies And Pizza", "Falafel Pie", 6, "falafel-pie", null],
-  ["Pies And Pizza", "Ash Albulbul-Large", 30, "ash-albulbul", "large"],
-  ["Pies And Pizza", "Plain Muhammara Pie", 6, "muhammara-pie", null],
-  ["Pies And Pizza", "Honey Pie", 6, "honey-pie", null],
-  ["Pies And Pizza", "Cheese Muhammara Pie", 8, "cheese-muhammara-pie", null],
-  ["Pies And Pizza", "Arayes", 12, "arayes-bread", null],
-  ["Pies And Pizza", "Thyme Pie", 6, "thyme-pie", null],
-  ["Pies And Pizza", "Shami Safehah", 12, "shami-safeeha", null],
+/**
+ * The restaurant's own QR menu (aldafwa.yallaqrcodes.com, linked from the
+ * official Linktree), read on 21 Nov 2026: [QR item id, Arabic name, price in
+ * SAR (VAT included), website dish id]. 105 dishes.
+ *
+ * When the restaurant changes a price, update it here and in src/data/menu.ts.
+ */
+const QR_MENU: [number, string, number, string][] = [
+  [1, "حمص", 12, "hummus"],
+  [2, "حمص بيروتي", 13, "beiruti-hummus"],
+  [3, "بابا غنوج", 12, "baba-ghanouj"],
+  [4, "متبل", 12, "mtabbal"],
+  [5, "فتوش", 12, "fattoush"],
+  [6, "ورق عنب", 12, "grape-leaves-starter"],
+  [7, "تبوله", 12, "tabbouleh"],
+  [8, "حمص باللحم", 18, "meat-hummus"],
+  [9, "فتة حمص", 14, "fatteh-hummus"],
+  [10, "سلطة خضراء", 12, "green-salad"],
+  [11, "مسبحة", 12, "msabbaha"],
+  [12, "مصقعه باذنجان", 12, "moussaka"],
+  [13, "سلطة ملفوف بالميونيز", 12, "cabbage-salad"],
+  [14, "سلطة ذرة", 12, "corn-salad"],
+  [15, "سلطة شمندر", 12, "beetroot-salad"],
+  [16, "سلطة بطاطس حارة", 12, "spicy-potato-salad"],
+  [17, "صحن مقبلات مشكل", 23, "mix-mezze"],
+  [18, "كبة", 4, "kibbeh"],
+  [19, "سمبوسك", 2, "samosa"],
+  [20, "سبرينغ رول", 3, "spring-roll"],
+  [21, "رز أبيض", 7, "white-rice"],
+  [22, "رز أحمر", 7, "red-rice"],
+  [111, "ورق عنب كلاسيك", 20, "grape-leaves-classic"],
+  [112, "ورق عنب سبايسي", 20, "grape-leaves-spicy"],
+  [113, "ورق عنب دبس رمان", 20, "grape-leaves-pomegranate"],
+  [114, "محشي ملفوف كلاسيك", 18, "stuffed-cabbage-classic"],
+  [115, "محشي ملفوف سبايسي", 18, "stuffed-cabbage-spicy"],
+  [28, "مشوي مشكل", 40, "mixed-grill"],
+  [29, "كباب لحم أرمني بالكرز", 40, "cherry-kebab"],
+  [30, "أوصال لحم", 40, "meat-awsal"],
+  [31, "ستيك لحم", 40, "meat-steak"],
+  [32, "كباب لحم باذنجان", 35, "eggplant-kebab"],
+  [33, "كباب لحم", 35, "meat-kebab"],
+  [35, "بوفيه مفتوح", 45, "open-buffet"],
+  [36, "ريش غنم", 50, "lamb-chops"],
+  [38, "كباب دجاج", 35, "chicken-kebab"],
+  [39, "شيش طاووق", 35, "shish-tawouk"],
+  [40, "فاهيتا دجاج", 25, "chicken-fajita"],
+  [41, "نصف دجاج عالفحم", 22, "half-chicken-charcoal"],
+  [42, "عرائس", 30, "grilled-arayes"],
+  [43, "شاورما صاروخ", 15, "rocket-shawarma"],
+  [44, "شاورما", 7, "shawarma"],
+  [45, "صحن شاورما", 25, "shawarma-dish"],
+  [46, "شاورما عربي", 20, "arabic-shawarma"],
+  [47, "بروستد", 22, "broasted"],
+  [48, "جمبري مشوي", 50, "grilled-shrimp"],
+  [49, "جمبري مقلي", 50, "fried-shrimp"],
+  [50, "سمك كنعد", 50, "kanad-fish"],
+  [51, "فيليه", 50, "fillet"],
+  [52, "أوصال سمك", 50, "fish-awsal"],
+  [54, "بيتزا", 20, "pizza"],
+  [55, "صفيحة شامية", 10, "shami-safeeha"],
+  [56, "لحم بالعجينة", 10, "lahm-bi-ajeen"],
+  [57, "محمرة سادة", 5, "muhammara-pie"],
+  [58, "محمرة بالجبن", 7, "cheese-muhammara-pie"],
+  [59, "سبانخ", 5, "spinach-pie"],
+  [60, "عش البلبل", 20, "ash-albulbul"],
+  [61, "عرائس", 10, "arayes-pie"],
+  [62, "لبنة", 5, "labneh-pie"],
+  [63, "فطائر فلافل", 5, "falafel-pie"],
+  [118, "فطائر زعتر", 5, "zaatar-pie"],
+  [64, "إفطار مشكل", 23, "mix-breakfast"],
+  [65, "بطاطس", 6, "potatoes"],
+  [66, "كبدة غنم", 18, "sheep-liver"],
+  [68, "مقلقل دجاج", 7, "chicken-mgalgal"],
+  [69, "بيض شكشوكة", 6, "shakshouka"],
+  [70, "بيض مقلي", 6, "fried-eggs"],
+  [71, "بيض بالجبن", 7, "egg-cheese"],
+  [72, "بيض مسلوق", 6, "boiled-eggs"],
+  [73, "بيض عيون", 6, "sunny-side-egg"],
+  [74, "جبنة بيضاء", 7, "white-cheese"],
+  [75, "لبنة", 6, "labneh-breakfast"],
+  [76, "جبنة بالمربى", 7, "cheese-jam"],
+  [77, "فول لبناني", 12, "lebanese-foul"],
+  [78, "فلافل صحن", 12, "falafel-plate"],
+  [79, "حلاوة جبنة", 12, "cheese-halawa"],
+  [80, "بطاطس حارة", 12, "spicy-potatoes"],
+  [81, "زيتون", 6, "olives"],
+  [85, "عدس", 6, "lentils"],
+  [119, "صحن مقلقل دجاج", 14, "chicken-mgalgal-dish"],
+  [86, "أم علي", 10, "umm-ali"],
+  [87, "كريم كراميل", 10, "creme-caramel"],
+  [88, "مهلبية", 7, "muhallabia"],
+  [89, "جيلو", 7, "jello"],
+  [90, "فروت سلاد", 12, "fruit-salad"],
+  [95, "كوكتيل الدفواء", 7, "dafwa-cocktail"],
+  [96, "برتقال", 7, "juice-orange"],
+  [97, "مانجو", 7, "juice-mango"],
+  [98, "جوافة", 7, "juice-guava"],
+  [99, "تفاح", 7, "juice-apple"],
+  [100, "موز بالحليب", 7, "juice-banana-milk"],
+  [101, "أناناس", 7, "juice-pineapple"],
+  [102, "فراولة", 7, "juice-strawberry"],
+  [103, "جزر", 7, "juice-carrot"],
+  [91, "رمان", 7, "juice-pomegranate"],
+  [92, "شمام", 7, "juice-melon"],
+  [93, "شقف", 12, "juice-shogaf"],
+  [94, "أفوكادو", 14, "juice-avocado"],
+  [104, "كيوي", 14, "juice-kiwi"],
+  [105, "جالون عصير", 30, "juice-gallon"],
+  [106, "بيبسي", 4, "pepsi"],
+  [107, "سفن أب", 4, "7up"],
+  [108, "ميراندا", 4, "mirinda"],
+  [109, "ديو", 4, "dew"],
+  [110, "مياه صحية", 1, "water"],
 ];
 
-const priceOf = (itemId: string, variationId: string | null) => {
-  const item = getMenuItem(itemId);
-  if (!item) return undefined;
-  if (variationId === null) return item.variations ? undefined : item.price;
-  return item.variations?.options.find((o) => o.id === variationId)?.price;
-};
+describe("menu matches the restaurant's QR menu", () => {
+  const byId = new Map(menuItems.map((i) => [i.id, i]));
 
-describe("menu matches the Google Maps menu", () => {
-  it("has no duplicate source lines", () => {
-    const names = GOOGLE_MENU.map((l) => l[1]);
-    expect(new Set(names).size).toBe(names.length);
-  });
-
-  it.each(GOOGLE_MENU)("%s / %s = SAR %d", (_section, _name, sar, itemId, variationId) => {
-    expect(priceOf(itemId, variationId)).toBe(sar);
-  });
-
-  it("every dish and option on the site comes from a Google line (nothing invented)", () => {
-    const covered = new Set(GOOGLE_MENU.map((l) => `${l[3]}|${l[4] ?? ""}`));
-    const onSite = menuItems.flatMap((i) =>
-      i.variations ? i.variations.options.map((o) => `${i.id}|${o.id}`) : [`${i.id}|`],
-    );
-    expect(onSite.filter((k) => !covered.has(k))).toEqual([]);
-    expect(onSite.length).toBe(GOOGLE_MENU.length);
-  });
-
-  it("every item is in a known section and has both languages", () => {
-    const cats = new Set(categories.map((c) => c.id));
-    for (const i of menuItems) {
-      expect(cats.has(i.category)).toBe(true);
-      expect(i.name.en && i.name.ar && i.description.en && i.description.ar).toBeTruthy();
+  it("has every QR dish with the same Arabic name and price", () => {
+    for (const [, ar, price, id] of QR_MENU) {
+      const item = byId.get(id);
+      expect(item, id).toBeDefined();
+      expect(item!.name.ar, id).toBe(ar);
+      expect(item!.price, id).toBe(price);
+      expect(item!.variations, id).toBeUndefined();
     }
+  });
+
+  it("has nothing that is not on the QR menu", () => {
+    expect(new Set(QR_MENU.map((r) => r[3])).size).toBe(QR_MENU.length);
+    expect(menuItems).toHaveLength(QR_MENU.length);
+  });
+
+  it("only the open buffet is dine-in only", () => {
+    expect(menuItems.filter((i) => i.dineInOnly).map((i) => i.id)).toEqual(["open-buffet"]);
   });
 });

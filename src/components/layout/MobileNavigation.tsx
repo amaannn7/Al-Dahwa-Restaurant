@@ -5,6 +5,7 @@ import { Phone } from "lucide-react";
 import { useRef } from "react";
 import { useI18n } from "@/components/providers/I18nProvider";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { SocialLinks } from "@/components/ui/SocialLinks";
 import { useDialog } from "@/components/ui/useDialog";
 import { displayPhone, fullAddress, localePath, telHref, whatsappEnquiryHref } from "@/lib/links";
 import { restaurant } from "@/config/restaurant";
@@ -81,6 +82,8 @@ export function MobileNavigation({ open, onClose, pathname }: { open: boolean; o
             {t.location.call}
           </a>
         </div>
+
+        <SocialLinks locale={locale} className="mt-5 justify-center" />
 
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-t border-line pt-5 text-[14px]">
           <div>
